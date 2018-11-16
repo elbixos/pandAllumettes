@@ -19,13 +19,13 @@ class MyApp(ShowBase):
         for i in range(len(plateau)) :
             for j in range(plateau[i]) :
                 print (j)
-                self.jar = self.loader.loadModel("./assets/basketball_net_and_board.egg")
+                self.jar = self.loader.loadModel("./assets/netted_jar.egg")
                 self.jar.reparentTo(self.render)
                 self.jar.setScale(0.5, 0.5, 0.5)
-                self.jar.setPos(0+i*2, 0+j*2, 0)
+                self.jar.setPos(-5+j*2, -10+i*4, 0)
 
-        self.camera.setPos(self.render, 15, 5, 5)
-        self.camera.lookAt(self.jar)
+        self.disableMouse()
+        camera.setPosHpr(0, -25, 15, 0, -45, 0)  # Place the camera
 
         base.oobe()
 
@@ -33,4 +33,3 @@ app = MyApp()
 
 
 app.run()
-
