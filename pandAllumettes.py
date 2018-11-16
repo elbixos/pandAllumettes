@@ -2,6 +2,7 @@ from direct.showbase.ShowBase import ShowBase
 from math import pi, sin, cos
 from panda3d.core import TextNode
 from direct.gui.OnscreenText import OnscreenText
+from direct.actor.Actor import Actor
 
 
 import sys
@@ -34,6 +35,7 @@ class MyApp(ShowBase):
                 node = self.noeudsPlateau[ligne].pop()
                 node.removeNode()
 
+            self.pandaActor.detachNode()
             self.ligne = ""
             self.nbAl = 0
             self.changePlayer()
@@ -52,6 +54,13 @@ class MyApp(ShowBase):
 
         if keyname in choixLigne:
             self.ligne = choixLigne[keyname]
+            if self.numJoueur ==  1 :
+                self.pandaActor.setColorScale((0.6, 0.6, 1.0, 1.0))
+            else :
+                self.pandaActor.setColorScale((1.0, 0.1, 0.1, 1.0))
+
+            self.pandaActor.setPos(-7,-10+self.ligne*4,0)
+            self.pandaActor.reparentTo(self.render)
             print(keyname)
 
         nbAl = {"1" : 1, "2" : 2,"3" : 3}
@@ -68,7 +77,7 @@ class MyApp(ShowBase):
 
         self.plateau = [1,3,5,7]
         self.ligne = ""
-        self.ligne = 0
+        self.nbAll = 0
         self.numJoueur = 0
 
         # Load the environment model.
@@ -132,6 +141,16 @@ class MyApp(ShowBase):
                          pos=(0.05, -0.24), fg=(1, 1, 1, 1), scale=.06,
                          shadow=(0, 0, 0, 0.5))
 
+        self.pandaActor = Actor("models/panda-model",
+                                {"walk": "models/panda-walk4"})
+        self.pandaActor.setScale(0.002, 0.002, 0.002)
+        self.pandaActor.setH(90)
+        self.pandaActor.setPos(-7,-10,0)
+        self.pandaActor.reparentTo(self.render)
+        # Loop its animation.
+        self.pandaActor.loop("walk")
+
+        self.pandaActor.detachNode()
 
 
         self.disableMouse()
