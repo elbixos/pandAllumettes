@@ -23,7 +23,7 @@ class MyApp(ShowBase):
 
 
     def updateCam(self):
-        print (self.moveCam)
+        #print (self.moveCam)
         if self.moveCam["forward"] == 1 :
             self.camera.setY(self.camera,0.5)
 
