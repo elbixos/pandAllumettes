@@ -8,6 +8,17 @@ from direct.actor.Actor import Actor
 import sys
 
 class MyApp(ShowBase):
+    def camMove(self,move,value):
+        if move =="forward" :
+            self.camera.setY(self.camera,1)
+        if move == "backward" :
+            self.camera.setY(self.camera,-1)
+
+        if move =="left" :
+                self.camera.setH(self.camera.getH()+5)
+        if move == "right" :
+                self.camera.setH(self.camera.getH()-5)
+
 
     def compteAllumettes(self):
         sum = 0
@@ -117,6 +128,14 @@ class MyApp(ShowBase):
 
         #self.accept("enter", self.removeAllumettes)  # Escape quits
         self.accept("escape", sys.exit)  # Escape quits
+        self.accept("arrow_up", self.camMove, ["forward",1])
+        self.accept("arrow_down", self.camMove, ["backward",1])
+        self.accept("arrow_left", self.camMove, ["left",1])
+        self.accept("arrow_right", self.camMove, ["right",1])
+        self.accept("arrow_up-up", self.camMove, ["forward",0])
+        self.accept("arrow_down-up", self.camMove, ["backward",0])
+        self.accept("arrow_left-up", self.camMove, ["left",0])
+        self.accept("arrow_right-up", self.camMove, ["right",0])
 
         base.buttonThrowers[0].node().setKeystrokeEvent('keystroke')
         self.accept('keystroke', self.chooseStrategy)
@@ -163,7 +182,7 @@ class MyApp(ShowBase):
         camera.setPosHpr(0, -25, 15, 0, -40, 0)  # Place the camera
 
         #base.oobeCull()
-        base.oobe()
+        #base.oobe()
 
 app = MyApp()
 
