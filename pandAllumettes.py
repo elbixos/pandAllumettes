@@ -10,15 +10,31 @@ import sys
 class MyApp(ShowBase):
     def camMove(self,move,value):
         if move =="forward" :
-            self.camera.setY(self.camera,1)
+            self.moveCam["forward"]=value
+
         if move == "backward" :
-            self.camera.setY(self.camera,-1)
+            self.moveCam["backward"]=value
 
         if move =="left" :
-                self.camera.setH(self.camera.getH()+5)
-        if move == "right" :
-                self.camera.setH(self.camera.getH()-5)
+            self.moveCam["left"]=value
 
+        if move == "right" :
+            self.moveCam["right"]=value
+
+
+    def updateCam(self):
+        print (self.moveCam)
+        if self.moveCam["forward"] == 1 :
+            self.camera.setY(self.camera,0.5)
+
+        if self.moveCam["backward"] == 1  :
+            self.camera.setY(self.camera,-0.5)
+
+        if self.moveCam["left"] == 1 :
+            self.camera.setH(self.camera.getH()+1)
+
+        if self.moveCam["right"] == 1 :
+            self.camera.setH(self.camera.getH()-1)
 
     def compteAllumettes(self):
         sum = 0
@@ -88,6 +104,11 @@ class MyApp(ShowBase):
                 self.nbAl = nbAl[keyname]
                 self.removeAllumettes()
 
+    def updateTask(self, task):
+        self.updateCam()
+
+        return task.cont
+
     def __init__(self):
         ShowBase.__init__(self)
 
@@ -95,6 +116,12 @@ class MyApp(ShowBase):
         self.ligne = 0
         self.nbAll = 0
         self.numJoueur = 0
+
+        self.moveCam={}
+        self.moveCam["forward"] = 0
+        self.moveCam["backward"]= 0
+        self.moveCam["left"]    = 0
+        self.moveCam["right"]   = 0
 
         # Load the environment model.
         self.scene = self.loader.loadModel("models/environment")
@@ -180,6 +207,8 @@ class MyApp(ShowBase):
 
         self.disableMouse()
         camera.setPosHpr(0, -25, 15, 0, -40, 0)  # Place the camera
+
+        self.taskMgr.add(self.updateTask, "update")
 
         #base.oobeCull()
         #base.oobe()
