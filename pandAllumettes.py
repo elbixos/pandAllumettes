@@ -18,49 +18,53 @@ class MyApp(ShowBase):
     def changePlayer(self):
         self.numJoueur = (self.numJoueur+1)%2
         self.title.setText("Player "+str(self.numJoueur+1))
+        self.setPanda()
 
+    def setPanda(self):
+        if self.numJoueur ==  1 :
+            self.pandaActor.setColorScale((0.6, 0.6, 1.0, 1.0))
+        else :
+            self.pandaActor.setColorScale((1.0, 0.1, 0.1, 1.0))
+
+        self.pandaActor.setPos(-7,-10+self.ligne*4,0)
 
 
     def removeAllumettes(self):
         # Remove if the user already chose a line and nbAl
+        ligne = self.ligne
+        # remove matches from plateau
+        self.plateau[ligne] -= self.nbAl
 
-        if (not self.ligne =="") and (not self.nbAl ==0) :
-            ligne = self.ligne
+        # remove matches from the scene graph
+        for i in range(self.nbAl):
+            node = self.noeudsPlateau[ligne].pop()
+            node.removeNode()
 
-            # remove matches from plateau
-            self.plateau[ligne] -= self.nbAl
+        #self.pandaActor.detachNode()
+        self.nbAl = 0
+        self.changePlayer()
 
-            # remove matches from the scene graph
-            for i in range(self.nbAl):
-                node = self.noeudsPlateau[ligne].pop()
-                node.removeNode()
-
-            self.pandaActor.detachNode()
-            self.ligne = ""
-            self.nbAl = 0
-            self.changePlayer()
-
-            if self.compteAllumettes() == 0 :
-                self.state = "gameOver"
-                self.gameOver = \
-                    OnscreenText(text="Player "+str(self.numJoueur+1)+ " Win !",
-                                 fg=(1, 1, 1, 1), pos=(-0.1, 0.1), scale=.08,
-                                 shadow=(0, 0, 0, 0.5))
+        if self.compteAllumettes() == 0 :
+            self.state = "gameOver"
+            self.gameOver = \
+                OnscreenText(text="Player "+str(self.numJoueur+1)+ " Win !",
+                             fg=(1, 1, 1, 1), pos=(-0.1, 0.1), scale=.08,
+                             shadow=(0, 0, 0, 0.5))
 
 
     def chooseStrategy(self, keyname):
-        choixLigne = {"a" : 0, "z" : 1,"e" : 2,"r" : 3}
+        moveLigne = {"a" : 1, "q" : -1}
         print (keyname)
 
-        if keyname in choixLigne:
-            self.ligne = choixLigne[keyname]
-            if self.numJoueur ==  1 :
-                self.pandaActor.setColorScale((0.6, 0.6, 1.0, 1.0))
-            else :
-                self.pandaActor.setColorScale((1.0, 0.1, 0.1, 1.0))
+        if keyname in moveLigne:
+            self.ligne +=moveLigne[keyname]
+            if self.ligne <0 :
+                self.ligne =0
+            if self.ligne >3 :
+                self.ligne =3
 
-            self.pandaActor.setPos(-7,-10+self.ligne*4,0)
-            self.pandaActor.reparentTo(self.render)
+            self.setPanda()
+            #self.pandaActor.reparentTo(self.render)
             print(keyname)
 
         nbAl = {"1" : 1, "2" : 2,"3" : 3}
@@ -71,12 +75,13 @@ class MyApp(ShowBase):
             # check if enough matches are on the line
             if wantedNb <= self.plateau[self.ligne]:
                 self.nbAl = nbAl[keyname]
+                self.removeAllumettes()
 
     def __init__(self):
         ShowBase.__init__(self)
 
         self.plateau = [1,3,5,7]
-        self.ligne = ""
+        self.ligne = 0
         self.nbAll = 0
         self.numJoueur = 0
 
@@ -110,7 +115,7 @@ class MyApp(ShowBase):
                 self.barrier.setScale(0.5, 0.5, 0.5)
                 self.barrier.setH( 90)
 
-        self.accept("enter", self.removeAllumettes)  # Escape quits
+        #self.accept("enter", self.removeAllumettes)  # Escape quits
         self.accept("escape", sys.exit)  # Escape quits
 
         base.buttonThrowers[0].node().setKeystrokeEvent('keystroke')
@@ -124,19 +129,19 @@ class MyApp(ShowBase):
                          shadow=(0, 0, 0, 0.5))
 
         self.instructions = \
-            OnscreenText(text="choose line with a, z, e or r keys",
+            OnscreenText(text="move panda with a or q",
                          parent=base.a2dTopLeft, align=TextNode.ALeft,
                          pos=(0.05, -0.08), fg=(1, 1, 1, 1), scale=.06,
                          shadow=(0, 0, 0, 0.5))
 
         self.instructions2 = \
-            OnscreenText(text="choose nb in 1, 2 or 3 keys",
+            OnscreenText(text="select nb with 1, 2 or 3 ",
                          parent=base.a2dTopLeft, align=TextNode.ALeft,
                          pos=(0.05, -0.16), fg=(1, 1, 1, 1), scale=.06,
                          shadow=(0, 0, 0, 0.5))
 
         self.instructions3 = \
-            OnscreenText(text="validate with Enter",
+            OnscreenText(text="last removal lose the game",
                          parent=base.a2dTopLeft, align=TextNode.ALeft,
                          pos=(0.05, -0.24), fg=(1, 1, 1, 1), scale=.06,
                          shadow=(0, 0, 0, 0.5))
@@ -145,12 +150,13 @@ class MyApp(ShowBase):
                                 {"walk": "models/panda-walk4"})
         self.pandaActor.setScale(0.002, 0.002, 0.002)
         self.pandaActor.setH(90)
-        self.pandaActor.setPos(-7,-10,0)
         self.pandaActor.reparentTo(self.render)
         # Loop its animation.
         self.pandaActor.loop("walk")
 
-        self.pandaActor.detachNode()
+        self.setPanda()
+
+        #self.pandaActor.detachNode()
 
 
         self.disableMouse()
